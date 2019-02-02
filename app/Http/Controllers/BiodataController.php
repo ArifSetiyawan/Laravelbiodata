@@ -14,9 +14,9 @@ class BiodataController extends Controller
      */
     public function index()
     {
-        $biodatas = Biodata::latest()->paginate(5);
+        $biodatas = Biodata::latest()->paginate(10);
         return view('biodata.index', compact('biodatas'))
-                ->with('i' , (request()->input('page',1) -1)*5);
+                ->with('i' , (request()->input('page',1) -1)*10);
     }
 
     /**
@@ -53,9 +53,10 @@ class BiodataController extends Controller
      * @param  \App\biodata  $biodata
      * @return \Illuminate\Http\Response
      */
-    public function show(biodata $biodata)
+    public function show($id)
     {
-        //
+        $biodata = Biodata::find($id);
+        return view('biodata.detail', compact('biodata'));
     }
 
     /**
@@ -64,9 +65,10 @@ class BiodataController extends Controller
      * @param  \App\biodata  $biodata
      * @return \Illuminate\Http\Response
      */
-    public function edit(biodata $biodata)
+    public function edit($id)
     {
-        //
+        $biodata = Biodata::find($id);
+        return view('biodata.edit', compact('biodata'));
     }
 
     /**
@@ -76,9 +78,19 @@ class BiodataController extends Controller
      * @param  \App\biodata  $biodata
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, biodata $biodata)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nama_siswa' => 'required',
+            'alamat_siswa' => 'required'
+        ]);
+        
+        $biodata = Biodata::find($id);
+        $biodata->nama_siswa = $request->get('nama_siswa');
+        $biodata->alamat_siswa = $request->get('alamat_siswa');
+        $biodata->save();
+        return redirect()->route('biodata.index')
+                ->with('Success' , 'Biodata Updated Successfully');
     }
 
     /**
@@ -87,8 +99,11 @@ class BiodataController extends Controller
      * @param  \App\biodata  $biodata
      * @return \Illuminate\Http\Response
      */
-    public function destroy(biodata $biodata)
+    public function destroy($id)
     {
-        //
+        $biodata = Biodata::find($id);
+        $biodata->delete();
+        return redirect()->route('biodata.index')
+                ->with('Success' , 'Biodata Deleted Successfully');
     }
 }
